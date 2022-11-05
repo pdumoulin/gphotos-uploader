@@ -1,0 +1,14 @@
+CREATE TABLE IF NOT EXISTS albums(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    gid VARCHAR NOT NULL UNIQUE,
+    name VARCHAR
+);
+
+CREATE TABLE IF NOT EXISTS uploads(
+    album_id INTEGER NOT NULL,
+    local_dir VARCHAR NOT NULL,
+    filename VARCHAR NOT NULL,
+    success BOOLEAN NOT NULL,
+    event_time DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (album_id) REFERENCES albums(id)
+);

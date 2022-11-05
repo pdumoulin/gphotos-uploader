@@ -1,0 +1,8 @@
+credentials.json
+auth_token.json
+database/.app_data
+media/
+env/
+*.swp
+__pycache__/
+*.pyc

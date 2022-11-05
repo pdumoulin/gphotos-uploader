@@ -116,7 +116,6 @@ def list_albums(args, db):
         ))
 
 def create_album(args, db):
-    print(args)
     album_name = args.name
     token_filename = args.token_file
 

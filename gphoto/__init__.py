@@ -28,7 +28,7 @@ class Client(object):
             token = self._get_creds_from_file(user_token_filename)
         self.session = AuthorizedSession(token)
 
-    def post_batch_media(self, filenames, to_album_id, batch_size=2):
+    def post_batch_media(self, filenames, to_album_id, batch_size=50):
         batches = [
             filenames[x:x + batch_size]
             for x in range(0, len(filenames), batch_size)

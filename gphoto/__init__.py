@@ -17,7 +17,12 @@ class Client(object):
     session = None
 
     def __init__(self, user_token_filename, app_creds_filename=None):  # noqa:E501
-        """Create new authorized client."""
+        """Create new authorized client.
+
+        Args:
+            user_token_filename (str): file to read/write user token
+            app_creds_filename (str): file to read app config when registering user token
+        """  # noqa:E501
         try:
             token = self._get_creds_from_file(user_token_filename)
         except (FileNotFoundError, json.decoder.JSONDecodeError, ValueError) as e:  # noqa:E501
@@ -29,6 +34,21 @@ class Client(object):
         self.session = AuthorizedSession(token)
 
     def post_batch_media(self, filenames, to_album_id, batch_size=50):
+        """Upload and register batch of media items.
+
+        Args:
+            list[str]: full path filenames locally on disk
+            to_album_id (str): Google Photos album id
+            batch_size (int): chunk size to send files in
+
+        Yields:
+            dict: uploads results
+                key (str): Google Photos upload token
+                    - filename (str): full path filename uploaded
+                    - success (bool): if upload success
+        """
+        if batch_size > 50 or batch_size < 1:
+            raise ValueError('Invalid batch_size')
         batches = [
             filenames[x:x + batch_size]
             for x in range(0, len(filenames), batch_size)
@@ -68,6 +88,17 @@ class Client(object):
             yield upload_tokens
 
     def list_albums(self, exclude_non_app=True, page_size=50):
+        """View all albums user has access to.
+
+        Args:
+            exclude_non_app (bool): don't show albums not created by this app
+            page_size (int): batch size to fetch
+
+        Returns:
+            list[Album]: https://developers.google.com/photos/library/reference/rest/v1/albums#Album
+        """  # noqa:E501
+        if page_size > 50 or page_size < 1:
+            raise ValueError('Invalid page_size')
         params = {
             'pageSize': page_size,
             'excludeNonAppCreatedData': exclude_non_app
@@ -84,6 +115,14 @@ class Client(object):
         return results
 
     def create_album(self, title):
+        """Make new album.
+
+        Args:
+            title (str): human readable name of album
+
+        Returns:
+            Album: https://developers.google.com/photos/library/reference/rest/v1/albums#Album
+        """  # noqa:E501
         data = json.dumps({
             'album': {
                 'title': title

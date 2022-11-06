@@ -100,13 +100,17 @@ def main():
 
     args.func(args, db)
 
+
 def create_auth(args, db):
+    """Create user auth token via OAuth browser flow."""
     token_file = args.token_file
     creds_file = args.creds_file
     Client(token_file, creds_file)
     print(f'Created token file at "{token_file}"')
 
+
 def list_albums(args, db):
+    """Display all locally registered albums."""
     rows = db.select_albums()
     if rows:
         print(tabulate(
@@ -115,7 +119,9 @@ def list_albums(args, db):
             tablefmt='pretty'
         ))
 
+
 def create_album(args, db):
+    """Create remote album and register it locally."""
     album_name = args.name
     token_filename = args.token_file
 
@@ -126,17 +132,19 @@ def create_album(args, db):
     db.insert_album(response['id'], response['title'])
     print('Added album in db!')
 
+
 def upload_album(args, db):
+    """Upload all files in a directory into a remote album."""
     album_id = args.to_album
     local_dir = os.path.abspath(args.from_dir)
     token_filename = args.token_file
 
     # validate input album and get gid
-    rows = db.select_album(album_id)
-    if not rows:
+    album = db.select_album(album_id)
+    if not album:
         print(f'Album not found for id "{album_id}"')
         exit(1)
-    album_gid = rows[0]['gid']
+    album_gid = album['gid']
 
     # validate directory exists
     try:
@@ -189,7 +197,7 @@ def upload_album(args, db):
         ],
         album_gid
     ):
-        uploads = [
+        db.insert_uploads([
                 {
                     'album_id': album_id,
                     'local_dir': local_dir,
@@ -198,9 +206,9 @@ def upload_album(args, db):
                 }
                 for _, x in upload_results.items()
             ]
-        db.insert_uploads(uploads)
-        for upload in uploads:
-            print(f"{upload['filename']} => {upload['success']}")
+        )
+        for result in upload_results:
+            print(f"{result['filename']} => {result['success']}")
 
 
 if __name__ == '__main__':

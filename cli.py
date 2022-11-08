@@ -16,6 +16,8 @@ SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 def main():
     """Entrypoint."""
     default_app_data_filename = os.path.join(SCRIPT_DIR, 'database/.app_data')
+    default_token_filename = os.path.join(SCRIPT_DIR, 'auth_token.json')
+    default_credentials_filename = os.path.join(SCRIPT_DIR, 'credentials.json')
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -34,12 +36,12 @@ def main():
     )
     create_auth_subparser.add_argument(
         '--token-file',
-        default='auth_token.json',
+        default=default_token_filename,
         help='filename for oauth user token'
     )
     create_auth_subparser.add_argument(
         '--creds-file',
-        default='credentials.json',
+        default=default_credentials_filename,
         help='application creds used to get user token'
     )
     create_auth_subparser.set_defaults(func=create_auth)
@@ -62,7 +64,7 @@ def main():
     )
     create_album_subparser.add_argument(
         '--token-file',
-        default='auth_token.json',
+        default=default_token_filename,
         help='filename for oauth user token'
     )
     create_album_subparser.set_defaults(func=create_album)
@@ -83,7 +85,7 @@ def main():
     )
     upload_album_subparser.add_argument(
         '--token-file',
-        default='auth_token.json',
+        default=default_token_filename,
         help='filename for oauth user token'
     )
     upload_album_subparser.set_defaults(func=upload_album)
@@ -207,7 +209,7 @@ def upload_album(args, db):
                 for _, x in upload_results.items()
             ]
         )
-        for result in upload_results:
+        for _, result in upload_results.items():
             print(f"{result['filename']} => {result['success']}")
 
 

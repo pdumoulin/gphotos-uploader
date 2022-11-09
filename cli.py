@@ -48,8 +48,18 @@ def main():
 
     list_albums_subparser = subparser.add_parser(
         'list-albums',
-        help='list locally registred albums',
+        help='list locally registred albums, and optionally all remote ones',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    list_albums_subparser.add_argument(
+        '-a',
+        action='store_true',
+        help='include remote albums'
+    )
+    list_albums_subparser.add_argument(
+        '--token-file',
+        default=default_token_filename,
+        help='filename for oauth user token, only relevent if -a is set'
     )
     list_albums_subparser.set_defaults(func=list_albums)
 
@@ -113,13 +123,57 @@ def create_auth(args, db):
 
 def list_albums(args, db):
     """Display all locally registered albums."""
-    rows = db.select_albums()
-    if rows:
-        print(tabulate(
-            rows,
-            headers=rows[0].keys(),
-            tablefmt='pretty'
-        ))
+    include_remote = args.a
+    token_filename = args.token_file
+
+    # query db for local albums
+    local_albums = db.select_albums()
+
+    if include_remote:
+
+        # query for remote albums
+        client = Client(token_filename)
+        remote_albums = {
+            x['id']: x
+            for x in client.list_albums(exclude_non_app=False)
+        }
+        if remote_albums and not local_albums:
+            print('No albums found locally or remote!')
+            exit(0)
+
+        # format data for display
+        headers = ['id', 'gid', 'local name', 'remote name']
+        rows = []
+
+        # locally registered albums, enriched with remote data
+        for local in local_albums:
+            remote_name = remote_albums.get(local['gid'], {}).get('title', None)  # noqa:E501
+            rows.append(list(local) + [remote_name])
+            if local['gid'] in remote_albums:
+                del remote_albums[local['gid']]
+
+        # albums not registered locally
+        for _, remote in remote_albums.items():
+            rows.append([
+                None,
+                remote['id'],
+                None,
+                remote['title']
+            ])
+    else:
+        if not local_albums:
+            print('No albums registered locally')
+            exit(0)
+
+        # format data for display
+        headers = local_albums[0].keys()
+        rows = local_albums
+
+    print(tabulate(
+        rows,
+        headers=headers,
+        tablefmt='pretty'
+    ))
 
 
 def create_album(args, db):

@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS uploads(
     album_id INTEGER NOT NULL,
     local_dir VARCHAR NOT NULL,
     filename VARCHAR NOT NULL,
-    success BOOLEAN NOT NULL,
+    media_id VARCHAR DEFAULT NULL,
     event_time DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (album_id) REFERENCES albums(id)
 );

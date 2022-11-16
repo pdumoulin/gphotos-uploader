@@ -88,7 +88,7 @@ class DB(object):
                 - album_id (int): db id of album
                 - local_dir (str): directory file is in
                 - filename (str): filename minus directory
-                - success (bool): if registered in remote album
+                - media_id (str): remote id of item
         """
         self._modify(
             'insert_bulk_uploads',
@@ -97,7 +97,7 @@ class DB(object):
                     'album_id': x['album_id'],
                     'local_dir': x['local_dir'],
                     'filename': x['filename'],
-                    'success': x['success']
+                    'media_id': x['media_id']
                 }
                 for x in uploads
             ]

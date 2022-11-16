@@ -258,13 +258,13 @@ def upload_album(args, db):
                     'album_id': album_id,
                     'local_dir': local_dir,
                     'filename': os.path.split(x['filename'])[-1],
-                    'success': x['success']
+                    'media_id': x.get('media_id')
                 }
                 for _, x in upload_results.items()
             ]
         )
         for _, result in upload_results.items():
-            print(f"{result['filename']} => {result['success']}")
+            print(f"{result['filename']} => {result.get('media_id')}")
 
 
 if __name__ == '__main__':

@@ -1,6 +1,7 @@
 """API interface for google photos."""
 
 import json
+import os
 
 from google.auth.transport.requests import AuthorizedSession
 from google.oauth2.credentials import Credentials
@@ -45,7 +46,7 @@ class Client(object):
             dict: uploads results
                 key (str): Google Photos upload token
                     - filename (str): full path filename uploaded
-                    - success (bool): if upload success
+                    - media_id (str): remote id created or missing on failure
         """
         if batch_size > 50 or batch_size < 1:
             raise ValueError('Invalid batch_size')
@@ -61,8 +62,7 @@ class Client(object):
                 with open(filename, 'rb') as f:
                     response = self._call('POST', 'v1/uploads', data=f.read())
                     upload_tokens[response.content.decode()] = {
-                        'filename': filename,
-                        'success': False
+                        'filename': filename
                     }
 
             # register uploads into album
@@ -71,10 +71,11 @@ class Client(object):
                 'newMediaItems': [
                     {
                         'simpleMediaItem': {
-                            'uploadToken': upload_token
+                            'uploadToken': upload_token,
+                            'fileName': os.path.split(details['filename'])[-1]
                         }
                     }
-                    for upload_token in upload_tokens.keys()
+                    for upload_token, details in upload_tokens.items()
                 ]
             })
             response = self._call('POST', 'v1/mediaItems:batchCreate', data=data)  # noqa:E501
@@ -82,7 +83,7 @@ class Client(object):
             # record sucess
             for result in response.json()['newMediaItemResults']:
                 if result['status']['message'] == 'Success':
-                    upload_tokens[result['uploadToken']]['success'] = True
+                    upload_tokens[result['uploadToken']]['media_id'] = result['mediaItem']['id']  # noqa:E501
 
             # yield batch to be processed
             yield upload_tokens

@@ -6,6 +6,8 @@ import os
 from database import DB
 
 from gphoto import Client
+from gphoto import valid_photo_ext
+from gphoto import valid_video_ext
 
 from tabulate import tabulate
 
@@ -99,6 +101,8 @@ def main():
         help='filename for oauth user token'
     )
     upload_album_subparser.set_defaults(func=upload_album)
+
+    # TODO - add new command to parse exif tags and update createdTimestamp
 
     # parse and save args
     args = parser.parse_args()
@@ -210,16 +214,10 @@ def upload_album(args, db):
         exit(1)
 
     # list files and filter based on extension
-    # https://developers.google.com/photos/library/guides/upload-media
-    extensions = [
-        'BMP', 'GIF', 'HEIC', 'ICO', 'JPG', 'PNG', 'TIFF', 'WEBP',
-        '3GP', '3G2', 'ASF', 'AVI', 'DIVX', 'M2T', 'M2TS', 'M4V',
-        'MKV', 'MMV', 'MOD', 'MOV', 'MP4', 'MPG', 'MTS', 'TOD', 'WMV'
-    ]
     filenames = [
         x
         for x in filenames
-        if x.split('.')[-1].upper() in extensions
+        if valid_photo_ext(x) or valid_video_ext(x)
     ]
     if not filenames:
         print('No valid files found to upload!')
@@ -249,22 +247,26 @@ def upload_album(args, db):
         [
             os.path.join(local_dir, x)
             for x in filenames
-            if x.split('.')[-1].upper() in extensions
         ],
         album_gid
     ):
-        db.insert_uploads([
+        rows = []
+        for _, x in upload_results.items():
+            filename = os.path.basename(x['filename'])
+            dirname = os.path.dirname(x['filename'])
+            patch_status = 'PENDING' if valid_photo_ext(filename) else 'NOT_SUPPORTED'  # noqa:E501
+            rows.append(
                 {
                     'album_id': album_id,
-                    'local_dir': local_dir,
-                    'filename': os.path.split(x['filename'])[-1],
-                    'media_id': x.get('media_id')
+                    'local_dir': dirname,
+                    'filename': filename,
+                    'media_id': x.get('media_id'),
+                    'patch_status': patch_status
                 }
-                for _, x in upload_results.items()
-            ]
-        )
-        for _, result in upload_results.items():
-            print(f"{result['filename']} => {result.get('media_id')}")
+            )
+        db.insert_uploads(rows)
+        for row in rows:
+            print(f"{row['filename']} => {row['media_id']}")
 
 
 if __name__ == '__main__':

@@ -89,6 +89,7 @@ class DB(object):
                 - local_dir (str): directory file is in
                 - filename (str): filename minus directory
                 - media_id (str): remote id of item
+                - patch_status (str): PENDING or NOT_SUPPORTED
         """
         self._modify(
             'insert_bulk_uploads',
@@ -97,7 +98,8 @@ class DB(object):
                     'album_id': x['album_id'],
                     'local_dir': x['local_dir'],
                     'filename': x['filename'],
-                    'media_id': x['media_id']
+                    'media_id': x['media_id'],
+                    'patch_status': x['patch_status']
                 }
                 for x in uploads
             ]

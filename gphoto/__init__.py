@@ -11,6 +11,25 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 URL_BASE = 'https://photoslibrary.googleapis.com/'
 APP_SCOPES = ['https://www.googleapis.com/auth/photoslibrary']
 
+# https://developers.google.com/photos/library/guides/upload-media#file-types-sizes
+PHOTO_TYPES = [
+    'BMP', 'GIF', 'HEIC', 'ICO', 'JPG', 'PNG', 'TIFF', 'WEBP', 'RAW'
+]
+VIDEO_TYPES = [
+    '3GP', '3G2', 'ASF', 'AVI', 'DIVX', 'M2T', 'M2TS', 'M4V',
+    'MKV', 'MMV', 'MOD', 'MOV', 'MP4', 'MPG', 'MTS', 'TOD', 'WMV'
+]
+
+
+def valid_photo_ext(filename):
+    """If file extension is acceptable photo."""
+    return filename.split('.')[-1].upper() in PHOTO_TYPES
+
+
+def valid_video_ext(filename):
+    """If file extension is acceptable video."""
+    return filename.split('.')[-1].upper() in VIDEO_TYPES
+
 
 class Client(object):
     """Session scoped client object."""

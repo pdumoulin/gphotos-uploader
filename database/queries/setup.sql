@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS uploads(
     local_dir VARCHAR NOT NULL,
     filename VARCHAR NOT NULL,
     media_id VARCHAR DEFAULT NULL,
+    patch_status VARCHAR CHECK(patch_status IN ('NOT_SUPPORTED', 'PENDING', 'ERROR', 'COMPLETE')) NOT NULL,
     event_time DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (album_id) REFERENCES albums(id)
 );

@@ -102,8 +102,6 @@ def main():
     )
     upload_album_subparser.set_defaults(func=upload_album)
 
-    # TODO - add new command to parse exif tags and update createdTimestamp
-
     # parse and save args
     args = parser.parse_args()
 
@@ -250,23 +248,17 @@ def upload_album(args, db):
         ],
         album_gid
     ):
-        rows = []
-        for _, x in upload_results.items():
-            filename = os.path.basename(x['filename'])
-            dirname = os.path.dirname(x['filename'])
-            patch_status = 'PENDING' if valid_photo_ext(filename) else 'NOT_SUPPORTED'  # noqa:E501
-            rows.append(
-                {
-                    'album_id': album_id,
-                    'local_dir': dirname,
-                    'filename': filename,
-                    'media_id': x.get('media_id'),
-                    'patch_status': patch_status
-                }
-            )
-        db.insert_uploads(rows)
-        for row in rows:
-            print(f"{row['filename']} => {row['media_id']}")
+        db.insert_uploads([
+            {
+                'album_id': album_id,
+                'local_dir': local_dir,
+                'filename': os.path.split(x['filename'])[-1],
+                'media_id': x.get('media_id')
+            }
+            for _, x in upload_results.items()
+        ])
+        for _, result in upload_results.items():
+            print(f"{result['filename']} => {result.get('media_id')}")
 
 
 if __name__ == '__main__':

@@ -1,8 +1,11 @@
 # exif notes
 
-In order for uploaded photos to order correctly with other sources in a single Google Photos stream, we need to make sure [exif image tags](https://exiv2.org/tags.html) are set in ways that Google Photos expects. There is no documentation and time zone behavior is different on web versus in the mobile Android application. These are my notes on figuring out what tags to set and how to set them using python to benefit [this project](https://github.com/pdumoulin/brightwheel-downloader).
+Time zone aware date [exif image tags](https://exiv2.org/tags.html) are interpreted by Google Photos, but not documented. These are my notes on figuring out what tags to set and how to set them using python to benefit [this project](https://github.com/pdumoulin/brightwheel-downloader).
 
-:warning: All experiments were run on jpg files only.
+:warning: Google photos on Android **does not** respect time zone when displaying images in a unified feed, but on the Web version it does!
+
+:heavy_exclamation_mark: All experiments were run on jpg files only.
+
 
 ### Discover Tags
 
@@ -18,7 +21,7 @@ Here are the minimum necessary tags needed.
 
 ### Set via Python
 
-Depending on how these tags were set via a python script, Google Photos would not recognize them. 
+Depending on how these tags were set via a python script, Google Photos would not recognize them.
 
 See `run.py` to experiment with each method.
 

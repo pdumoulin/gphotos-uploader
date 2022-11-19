@@ -100,6 +100,11 @@ def main():
         default=default_token_filename,
         help='filename for oauth user token'
     )
+    upload_album_subparser.add_argument(
+        '-e',
+        action='store_true',
+        help='exit non-zero if any uploads in batch failed'
+    )
     upload_album_subparser.set_defaults(func=upload_album)
 
     # parse and save args
@@ -196,6 +201,7 @@ def upload_album(args, db):
     album_id = args.to_album
     local_dir = os.path.abspath(args.from_dir)
     token_filename = args.token_file
+    exit_on_error = args.e
 
     # validate input album and get gid
     album = db.select_album(album_id)
@@ -248,17 +254,30 @@ def upload_album(args, db):
         ],
         album_gid
     ):
-        db.insert_uploads([
-            {
-                'album_id': album_id,
-                'local_dir': local_dir,
-                'filename': os.path.split(x['filename'])[-1],
-                'media_id': x.get('media_id')
-            }
-            for _, x in upload_results.items()
-        ])
+
+        # process batch results from API
         for _, result in upload_results.items():
-            print(f"{result['filename']} => {result.get('media_id')}")
+
+            # record batch of results in db
+            batch = [
+                {
+                    'album_id': album_id,
+                    'local_dir': local_dir,
+                    'filename': os.path.split(x['filename'])[-1],
+                    'media_id': x.get('media_id')
+                }
+                for _, x in upload_results.items()
+            ]
+            db.insert_uploads(batch)
+
+            # progress report
+            for x in batch:
+                print(f"{x['filename']} => {x['media_id']}")
+
+            # stop if upload errors occured
+            errors = sum([y for y in batch if y['media_id'] is None])
+            if errors and exit_on_error:
+                exit(1)
 
 
 if __name__ == '__main__':

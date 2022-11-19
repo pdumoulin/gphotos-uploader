@@ -99,9 +99,9 @@ class Client(object):
             })
             response = self._call('POST', 'v1/mediaItems:batchCreate', data=data)  # noqa:E501
 
-            # record sucess
+            # record success
             for result in response.json()['newMediaItemResults']:
-                if result['status']['message'] == 'Success':
+                if result['status']['message'] in ('Success', 'OK'):
                     upload_tokens[result['uploadToken']]['media_id'] = result['mediaItem']['id']  # noqa:E501
 
             # yield batch to be processed

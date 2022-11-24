@@ -256,28 +256,25 @@ def upload_album(args, db):
     ):
 
         # process batch results from API
-        for _, result in upload_results.items():
+        batch = [
+            {
+                'album_id': album_id,
+                'local_dir': local_dir,
+                'filename': os.path.split(x['filename'])[-1],
+                'media_id': x.get('media_id')
+            }
+            for _, x in upload_results.items()
+        ]
+        db.insert_uploads(batch)
 
-            # record batch of results in db
-            batch = [
-                {
-                    'album_id': album_id,
-                    'local_dir': local_dir,
-                    'filename': os.path.split(x['filename'])[-1],
-                    'media_id': x.get('media_id')
-                }
-                for _, x in result
-            ]
-            db.insert_uploads(batch)
+        # progress report
+        for x in batch:
+            print(f"{x['filename']} => {x['media_id']}")
 
-            # progress report
-            for x in batch:
-                print(f"{x['filename']} => {x['media_id']}")
-
-            # stop if upload errors occured
-            errors = sum([y for y in batch if y['media_id'] is None])
-            if errors and exit_on_error:
-                exit(1)
+        # stop if upload errors occured
+        errors = sum([y for y in batch if y['media_id'] is None])
+        if errors and exit_on_error:
+            exit(1)
 
 
 if __name__ == '__main__':

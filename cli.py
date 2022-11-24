@@ -266,7 +266,7 @@ def upload_album(args, db):
                     'filename': os.path.split(x['filename'])[-1],
                     'media_id': x.get('media_id')
                 }
-                for _, x in upload_results.items()
+                for _, x in result
             ]
             db.insert_uploads(batch)
 

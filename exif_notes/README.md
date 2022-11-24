@@ -33,8 +33,8 @@ Google Photos uses GPS data to localize date by time zone.
 
 | exiftool tag name | example |
 | --- | --- |
-|ModifyDate| `2021:07:12 12:03:24` |
-| GPSCoordinates | `40.6781, 73.9441, 0` |
+| ModifyDate| `2021:07:12 12:03:24` |
+| Keys:GPSCoordinates | `40.6781, 73.9441, 0` |
 
 :warning: More than 4 decimal places may not work!
 

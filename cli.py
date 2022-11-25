@@ -272,8 +272,7 @@ def upload_album(args, db):
             print(f"{x['filename']} => {x['media_id']}")
 
         # stop if upload errors occured
-        errors = sum([y for y in batch if y['media_id'] is None])
-        if errors and exit_on_error:
+        if exit_on_error and any([y['media_id'] is None for y in batch]):
             exit(1)
 
 

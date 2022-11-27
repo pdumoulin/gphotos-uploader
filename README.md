@@ -102,7 +102,7 @@ optional arguments:
 :bulb: Uploads are recorded in the database and not repeated when running again.
 
 ```
-usage: cli.py upload-album [-h] [--token-file TOKEN_FILE] from_dir to_album
+usage: cli.py upload-album [-h] [--token-file TOKEN_FILE] [-e] from_dir to_album
 
 positional arguments:
   from_dir              local folder to upload to gphotos
@@ -112,4 +112,5 @@ optional arguments:
   -h, --help            show this help message and exit
   --token-file TOKEN_FILE
                         filename for oauth user token (default: <project_dir>/auth_token.json)
+  -e                    exit non-zero if any uploads in batch failed (default: False)
 ```

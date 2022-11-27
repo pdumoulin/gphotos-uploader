@@ -7,6 +7,7 @@ Upload directories of files to [Google Photos](https://www.google.com/photos/abo
 * :floppy_disk: Records are kept when an upload is completed so that files are not sent multiple times, but the Google Photos API appears to prevent duplicates in the same album well
 * :closed_lock_with_key: Authentication and authorization are done via OAuth, you will need to register an application in Google Cloud and then grant it access to your photo library (see "Setup" below)
 * :no_entry_sign: Files are not deleted from Google Photos album when removed locally
+* :bangbang: See `exif_notes/README.md` for details on how Google Photos respects metadata tags in uploads, and reference [this project](https://github.com/pdumoulin/brightwheel-downloader/blob/main/processors/__init__.py) for an implementation of setting those tags via python and exiftool
 
 ## Setup
 

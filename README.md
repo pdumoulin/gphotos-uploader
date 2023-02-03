@@ -39,7 +39,7 @@ $ (env) pip install -r requirements.txt
 
 1. Run the CLI tool, a browser may automatically open and a URL will be printed to the console.
 ```
-$ (env) python cly.py create-auth
+$ (env) python cli.py create-auth
 ```
 
 2. Following the URL in the previous step, authorized the application to manage your user's photo library.

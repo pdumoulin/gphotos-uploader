@@ -105,6 +105,11 @@ def main():
         action='store_true',
         help='exit non-zero if any uploads in batch failed'
     )
+    upload_album_subparser.add_argument(
+        '-s',
+        action='store_true',
+        help='exit non-zero if invalid file found in dir'
+    )
     upload_album_subparser.set_defaults(func=upload_album)
 
     # parse and save args
@@ -202,6 +207,7 @@ def upload_album(args, db):
     local_dir = os.path.abspath(args.from_dir)
     token_filename = args.token_file
     exit_on_error = args.e
+    exit_on_invalid_file = args.s
 
     # validate input album and get gid
     album = db.select_album(album_id)
@@ -218,11 +224,15 @@ def upload_album(args, db):
         exit(1)
 
     # list files and filter based on extension
+    num_total_files = len(filenames)
     filenames = [
         x
         for x in filenames
         if valid_photo_ext(x) or valid_video_ext(x)
     ]
+    if exit_on_invalid_file and num_total_files != len(filenames):
+        print('Invalid files found in upload dir')
+        exit(1)
     if not filenames:
         print('No valid files found to upload!')
         exit(0)
